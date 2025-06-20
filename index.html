@@ -1,15 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>감각되지 않는 존재들에게</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/addons/p5.sound.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <meta charset="utf-8" />
+    <style>
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 5px;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .svg-image {
+            width: 90vw;
+            height: 90vh;
+            max-width: none;
+            max-height: none;
+            object-fit: contain;
+        }
+
+        .title {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .info {
+            margin-top: 10px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-    <script src="sketch.js"></script>
+    <div class="container">        
+        <img src="src/Group 340.svg" class="svg-image">
+    </div>
+
+    <script>
+        document.querySelector('.svg-image').addEventListener('error', function() {
+            this.alt = 'SVG 이미지를 불러올 수 없습니다';
+            this.style.border = '2px dashed #ccc';
+        });
+
+        document.querySelector('.svg-image').addEventListener('load', function() {
+            this.style.opacity = '0';
+            this.style.transform = 'scale(0.8)';
+            this.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
 </body>
 </html>

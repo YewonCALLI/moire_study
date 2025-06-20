@@ -1,37 +1,95 @@
 let colors;
 let noiseGraphics;
 let patternBuffer;
+let stripeBuffer;
 let time = 0;
 
+let stripeHeight = 7;
+let stripeGap = 2.5;
+
+let useKeyframes = false; 
+let keyframeTime = 0;
+
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(windowWidth, windowHeight, SVG);
   
   colors = {
-    primary: color(50, 50, 180)
+    primary: color(255,255,255)
   };
   
   noiseGraphics = createGraphics(width, height);
-  createNoiseTexture();
   
   patternBuffer = createGraphics(width, height);
+  
+  stripeBuffer = createGraphics(width, height);
+  createStripes();
 }
 
 function draw() {
-  background(245, 240, 220);
+  background(255);
   
-  patternBuffer.clear();
-  patternBuffer.background(245, 240, 220);
+  // patternBuffer.clear();
+  // patternBuffer.background(245, 240, 220);
+
+  drawOrbit();
+  //image(patternBuffer,0,0);
   
-  drawRipplePattern();
+  //drawRipplePattern();
   
-  image(patternBuffer, 0, 0);
+  //image(patternBuffer, 0, 0);
   
-  tint(255, 200);
-  image(noiseGraphics, 0, 0);
-  noTint();
+  //image(stripeBuffer, 0, 0);
+
+  if (!useKeyframes) {
+    time += 0.02;
+  } else {
+    time = keyframeTime * TWO_PI;
+  }
   
-  time += 0.01;
 }
+function drawOrbit() {
+  let centerX = width / 2;
+  let centerY = height / 2;
+  let a = 100;
+  let b = 60;
+  let rotation = radians(-20);
+  
+  let planets = [
+    { speed: 1.0, size: 30, color: [0, 0, 0] },
+    { speed: 1.0, size: 30, color: [0, 0, 0] },
+    { speed: 1.0, size: 30, color: [0, 0, 0] },
+    { speed: 1.0, size: 30, color: [0, 0, 0] },
+    { speed: 1.0, size: 30, color: [0, 0, 0] },
+    { speed: 1.0, size: 30, color: [0, 0, 0] }
+  ];
+  
+  push();
+  translate(centerX, centerY);
+  rotate(rotation);
+  stroke(80);
+  strokeWeight(1);
+  noFill();
+  ellipse(0, 0, a * 2, b * 2);
+  pop();
+  
+  for (let i = 0; i < planets.length; i++) {
+    let planet = planets[i];
+    let angle = time * planet.speed + (i * PI / 3);
+    let localX = a * cos(angle);
+    let localY = b * sin(angle);
+    let x = centerX + localX * cos(rotation) - localY * sin(rotation);
+    let y = centerY + localX * sin(rotation) + localY * cos(rotation);
+    
+    fill(planet.color[0], planet.color[1], planet.color[2]);
+    noStroke();
+    ellipse(x, y, planet.size, planet.size);
+    
+    stroke(planet.color[0], planet.color[1], planet.color[2], 100);
+    strokeWeight(2);
+    point(x, y);
+  }
+}
+
 
 function drawRipplePattern() {
   let rippleCount = 12;
@@ -71,16 +129,44 @@ function drawRipplePattern() {
   }
 }
 
-function createNoiseTexture() {
-  noiseGraphics.loadPixels();
-  for(let i = 0; i < noiseGraphics.pixels.length; i += 4) {
-    let noiseValue = random(0, 255);
-    noiseGraphics.pixels[i] = noiseGraphics.pixels[i + 1] = noiseGraphics.pixels[i + 2] = 255;
-    noiseGraphics.pixels[i + 3] = noiseValue;
+function createStripes() {
+  stripeBuffer.clear();
+  stripeBuffer.fill(0);
+  stripeBuffer.noStroke();
+  
+  let y = 0;
+  while(y < height) {
+    stripeBuffer.rect(0, y, width, stripeHeight);
+    y += stripeHeight + stripeGap;
   }
-  noiseGraphics.updatePixels();
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+function setKeyframe(t) {
+  keyframeTime = constrain(t, 0, 1);
+}
+
+function playAnimation() {
+  useKeyframes = false;
+}
+
+function stopAnimation() {
+  useKeyframes = true;
+}
+
+function keyPressed() {
+  if (key === 'p' || key === 'P') {
+    playAnimation();
+  }
+  if (key === 's' || key === 'S') {
+    stopAnimation();
+  }
+  if (key === '1') setKeyframe(0.0);
+  if (key === '2') setKeyframe(0.125);
+  if (key === '3') setKeyframe(0.25);
+  if (key === '4') setKeyframe(0.375);
+  
+  if(key === 'l'){
+    // saveCanvas();
+    save("moire.svg");
+  }
 }
